@@ -58,7 +58,7 @@ coverageExcludedPackages := "<empty>;controllers.*;views.*;models.*"
 /*
  * Allow packaging as part of the build
  */
-enablePlugins(SbtNativePackager)
+enablePlugins(JavaServerAppPackaging)
 
 /* Debian Settings - to create, run as:
    $ sbt debian:packageBin
@@ -88,3 +88,25 @@ rpmLicense := Some("Apache")
 rpmGroup := Some("kafka-manager")
 
 /* End RPM Settings */
+
+
+/* Docker Settings - to create, run as:
+   $ sbt docker:publishLocal
+ */
+enablePlugins(DockerPlugin)
+
+import com.typesafe.sbt.packager.docker._
+
+dockerBaseImage := "anapsix/alpine-java:jre8"
+dockerUpdateLatest := true
+maintainer in Docker := "Lukasz Stefaniak <lustefaniak@gmail.com>"
+dockerRepository := Some("lustefaniak")
+dockerExposedPorts := Seq(9000)
+dockerExposedVolumes := Seq("/opt/kafka-manager/logs")
+defaultLinuxInstallLocation in Docker := "/opt/kafka-manager"
+dockerCommands ++= Seq(
+  Cmd("ENV", "ZK_HOSTS", "localhost:2181"),
+  Cmd("ENV", "APPLICATION_SECRET", "change_me_to_some_random_string")
+)
+
+/* End Docker Settings */
